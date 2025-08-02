@@ -1,0 +1,111 @@
+databaseChangeLog:
+  # Master Liquibase changelog for the multi‑tenant SaaS application.
+  #
+  # These changesets define the structure of the central database.  At
+  # application startup Spring Boot will apply these changes to the
+  # central PostgreSQL schema via Liquibase.  The shard databases rely
+  # on JPA’s schema generation for tenant‑scoped tables.  Liquibase can
+  # also be extended to manage shard schemas if desired by defining
+  # additional SpringLiquibase beans per shard.
+
+  - changeSet:
+      id: 1
+      author: dev
+      labels: central
+      comment: "Create shard configuration table"
+      changes:
+        - createTable:
+            tableName: shards
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_shards
+              - column:
+                  name: shard_key
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: jdbcurl
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2
+      author: dev
+      labels: central
+      comment: "Create tenant shard mapping table"
+      changes:
+        - createTable:
+            tableName: tenant_shard_mappings
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_tenant_shard_mappings
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: shard
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 5
+      author: dev
+      labels: central
+      comment: "Seed shard configuration data"
+      changes:
+        - insert:
+            tableName: shards
+            columns:
+              - column:
+                  name: shard_key
+                  value: "shard1"
+              - column:
+                  name: jdbcurl
+                  value: "jdbc:postgresql://localhost:5432/shard1_db"
+              - column:
+                  name: username
+                  value: "postgres"
+              - column:
+                  name: password
+                  value: ""
+        - insert:
+            tableName: shards
+            columns:
+              - column:
+                  name: shard_key
+                  value: "shard2"
+              - column:
+                  name: jdbcurl
+                  value: "jdbc:postgresql://localhost:5432/shard2_db"
+              - column:
+                  name: username
+                  value: "postgres"
+              - column:
+                  name: password
+                  value: ""

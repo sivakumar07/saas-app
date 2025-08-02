@@ -1,0 +1,99 @@
+
+spring:
+  datasource:
+    # Central database stores tenant, user, shard and other global tables.  In
+    # production this should be a dedicated PostgreSQL database.  Adjust
+    # credentials and host as necessary.  The driver class name is
+    # org.postgresql.Driver.
+    central:
+      jdbcUrl: jdbc:postgresql://localhost:5432/central_db
+      username: postgres
+      password: postgres
+      driver-class-name: org.postgresql.Driver
+    # Individual shards hold tenant‑scoped tables such as contacts.  For
+    # demonstration there are two shards.  In a real deployment the shard
+    # details would be stored in the central DB (see the Shard entity) and
+    # loaded dynamically.  Adjust the URLs and credentials per your
+    # environment.
+    shards:
+      shard1:
+        jdbcUrl: jdbc:postgresql://localhost:5432/shard1_db
+        username: postgres
+        password: postgres
+        driver-class-name: org.postgresql.Driver
+      shard2:
+        jdbcUrl: jdbc:postgresql://localhost:5432/shard2_db
+        username: postgres
+        password: postgres
+        driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # Redis configuration.  The embedded Redis server is started on port 6379 in
+  # {@link com.example.saas.SaasApplication}.  Rqueue uses this connection to
+  # enqueue and process messages.  If an external Redis server is available
+  # change these values accordingly.
+  redis:
+    host: localhost
+    port: 6379
+
+  liquibase:
+    # Location of the master Liquibase changelog.  Liquibase will run
+    # these changesets against the central database at startup.  The
+    # shards rely on JPA schema generation by default; Liquibase can be
+    # extended to handle shards by defining additional SpringLiquibase
+    # beans if necessary.
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+jwt:
+  # Base64 encoded secret key used to sign JWT tokens.  Must be at least 256
+  # bits (32 characters) before encoding.
+  secret: N2I0YzY5MGEtYjI5MS00ZDI5LWE5YjYtYjE5YzgzYjYyYjY3Cg==
+  # Token expiration in milliseconds (1 hour)
+  expiration-ms: 3600000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+
+# Rqueue dashboard configuration
+#
+# The Rqueue dashboard provides latency graphs, queue statistics,
+# dead‑letter queue management and other operational tooling.
+# Setting rqueue.web.enable to true exposes the dashboard at `/rqueue`.
+# In production you may set this to false to disable the dashboard.
+rqueue:
+  web:
+    enable: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: web
+rqueue:
+  system:
+    mode: PRODUCER
+
+---
+spring:
+  config:
+    activate:
+      on-profile: worker
+  main:
+    web-application-type: none
+rqueue:
+  system:
+    mode: CONSUMER
