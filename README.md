@@ -76,3 +76,21 @@ Swagger UI is available at [http://localhost:8080/swagger-ui.html](http://localh
 ## Rqueue Dashboard
 
 The Rqueue dashboard is available at [http://localhost:8080/rqueue](http://localhost:8080/rqueue) for monitoring and managing message queues.
+
+## Testing
+
+### Running Tests
+
+To run the unit and integration tests, use the following Maven command:
+
+```sh
+mvn test
+```
+
+### Test Coverage Report
+
+This project uses the JaCoCo plugin to generate test coverage reports. To generate the report, run the following command:
+
+```sh
+mvn clean verify
+```

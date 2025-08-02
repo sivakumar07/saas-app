@@ -140,6 +140,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Testcontainers for spinning up Postgres and Redis in integration tests. -->
         <dependency>
             <groupId>org.testcontainers</groupId>
